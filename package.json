@@ -1,5 +1,5 @@
 {
-  "name": "builtwithopenclaw-app",
+  "name": "builtwithopenclaw",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -11,7 +11,17 @@
   "dependencies": {
     "next": "16.1.6",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "@supabase/supabase-js": "^2",
+    "@supabase/ssr": "^0.5",
+    "stripe": "^17",
+    "resend": "^4",
+    "react-markdown": "^10",
+    "@radix-ui/react-slot": "^1",
+    "class-variance-authority": "^0.7",
+    "clsx": "^2",
+    "tailwind-merge": "^2",
+    "lucide-react": "^0.460"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

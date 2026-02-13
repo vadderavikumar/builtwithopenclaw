@@ -1,65 +1,92 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Search, PlusCircle, Star, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ListingCard } from "@/components/listing-card";
+import { FeaturedSection } from "@/components/featured-section";
+import { NewlyAddedSection } from "@/components/newly-added-section";
 
-export default function Home() {
+export default async function HomePage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div>
+      {/* Hero */}
+      <section className="border-b bg-muted/30">
+        <div className="container px-4 py-16 md:py-24">
+          <div className="mx-auto max-w-3xl text-center space-y-6">
+            <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
+              The database of products built with OpenClaw
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              Discover curated SaaS, tools, plugins, and integrations. Submit your product for free
+              or get featured for maximum visibility.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/directory">
+                <Button size="lg" className="w-full sm:w-auto gap-2">
+                  <Search className="h-4 w-4" />
+                  Browse Directory
+                </Button>
+              </Link>
+              <Link href="/submit">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto gap-2">
+                  <PlusCircle className="h-4 w-4" />
+                  Submit Listing
+                </Button>
+              </Link>
+              <Link href="/get-featured">
+                <Button variant="secondary" size="lg" className="w-full sm:w-auto gap-2">
+                  <Star className="h-4 w-4" />
+                  Get Featured
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured this week */}
+      <FeaturedSection />
+
+      {/* Newly added */}
+      <NewlyAddedSection />
+
+      {/* Categories preview */}
+      <section className="border-b py-16">
+        <div className="container px-4">
+          <h2 className="text-2xl font-semibold mb-6">Browse by category</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {["SaaS", "Self-hosted", "Tool", "Plugin", "Template", "Integration/Service"].map(
+              (cat) => (
+                <Link
+                  key={cat}
+                  href={`/directory?category=${encodeURIComponent(cat)}`}
+                  className="rounded-lg border bg-card p-4 hover:border-primary/50 transition-colors flex items-center justify-between group"
+                >
+                  <span className="font-medium">{cat}</span>
+                  <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                </Link>
+              )
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-16">
+        <div className="container px-4 text-center">
+          <h2 className="text-2xl font-semibold mb-4">Ready to get your product in front of builders?</h2>
+          <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
+            Submit your listing for free (manual review within 48h) or get a featured slot for $49/week.
           </p>
+          <div className="flex items-center justify-center gap-4">
+            <Link href="/submit">
+              <Button size="lg">Submit for Free</Button>
+            </Link>
+            <Link href="/get-featured">
+              <Button variant="outline" size="lg">Get Featured</Button>
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </section>
     </div>
   );
 }
