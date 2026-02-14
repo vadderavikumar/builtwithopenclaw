@@ -2,8 +2,23 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createAdminClient, hasSupabase } from "@/lib/supabase/admin";
 import { ListingCard } from "@/components/listing-card";
+import { buildMetadata } from "@/lib/metadata";
 
 type Props = { params: Promise<{ slug: string }> };
+
+export async function generateMetadata({ params }: Props) {
+  const { slug } = await params;
+  if (!hasSupabase()) return { title: "Collection" };
+  const supabase = createAdminClient();
+  const { data } = await supabase.from("collections").select("title, description").eq("slug", slug).single();
+  if (!data) return { title: "Collection" };
+  return buildMetadata({
+    title: data.title,
+    description: data.description || `Curated collection of OpenClaw products: ${data.title}`,
+    path: `/collections/${slug}`,
+    keywords: ["OpenClaw", data.title, "collection"],
+  });
+}
 
 export default async function CollectionDetailPage({ params }: Props) {
   const { slug } = await params;

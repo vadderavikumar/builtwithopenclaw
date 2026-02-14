@@ -10,6 +10,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/submit`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
     { url: `${base}/get-featured`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
     { url: `${base}/collections`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
+    { url: `${base}/privacy`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
+    { url: `${base}/terms`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
+    { url: `${base}/refund`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
+    { url: `${base}/about`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.6 },
+    { url: `${base}/plugins`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
+    { url: `${base}/skills`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
+    { url: `${base}/applications`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
   ];
 
   if (!hasSupabase()) return staticPages;

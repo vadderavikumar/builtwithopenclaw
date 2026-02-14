@@ -1,6 +1,14 @@
 import Link from "next/link";
 import { CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { buildMetadata } from "@/lib/metadata";
+
+export const metadata = buildMetadata({
+  title: "Payment Successful",
+  description: "Your featured slot purchase was successful. We'll assign your slot shortly.",
+  path: "/get-featured/success",
+  noIndex: true,
+});
 
 export default async function GetFeaturedSuccessPage() {
   return (

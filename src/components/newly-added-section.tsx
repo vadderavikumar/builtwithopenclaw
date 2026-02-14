@@ -5,12 +5,10 @@ import { createAdminClient, hasSupabase } from "@/lib/supabase/admin";
 export async function NewlyAddedSection() {
   if (!hasSupabase()) {
     return (
-      <section className="border-b py-16">
-        <div className="container px-4">
-          <h2 className="text-2xl font-semibold mb-6">Newly added</h2>
-          <div className="rounded-lg border bg-muted/30 p-12 text-center text-muted-foreground">
-            Configure Supabase to see listings.
-          </div>
+      <section className="pt-10 md:pt-14 border-t">
+        <h2 className="text-lg font-bold mb-5">Newly added</h2>
+        <div className="rounded-2xl border-2 border-dashed border-muted-foreground/20 bg-muted/30 p-12 text-center text-muted-foreground">
+          Configure Supabase to see listings.
         </div>
       </section>
     );
@@ -35,43 +33,39 @@ export async function NewlyAddedSection() {
 
   if (!listings || listings.length === 0) {
     return (
-      <section className="border-b py-16">
-        <div className="container px-4">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-semibold">Newly added</h2>
-            <Link href="/directory" className="text-sm text-primary hover:underline">
-              View all
-            </Link>
-          </div>
-          <div className="rounded-lg border bg-muted/30 p-12 text-center text-muted-foreground">
-            No listings yet.{" "}
-            <Link href="/submit" className="text-primary hover:underline">
-              Be the first to submit
-            </Link>
-          </div>
+      <section className="pt-10 md:pt-14 border-t">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-lg font-bold">Newly added</h2>
+          <Link href="/directory" className="text-sm text-primary hover:underline font-medium">
+            View all →
+          </Link>
+        </div>
+        <div className="rounded-2xl border-2 border-dashed border-muted-foreground/20 bg-muted/30 p-12 text-center">
+          <p className="text-muted-foreground mb-3">No listings yet.</p>
+          <Link href="/submit" className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline">
+            Be the first to submit →
+          </Link>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="border-b py-16">
-      <div className="container px-4">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-semibold">Newly added</h2>
-          <Link href="/directory" className="text-sm text-primary hover:underline">
-            View all
-          </Link>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {listings.map((listing) => (
-            <ListingCard
-              key={listing.id}
-              listing={listing}
-              upvoteCount={upvoteCounts[listing.id] ?? 0}
-            />
-          ))}
-        </div>
+    <section className="pt-10 md:pt-14 border-t">
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="text-lg font-bold">Newly added</h2>
+        <Link href="/directory" className="text-sm text-primary hover:underline font-medium">
+          View all →
+        </Link>
+      </div>
+      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        {listings.map((listing) => (
+          <ListingCard
+            key={listing.id}
+            listing={listing}
+            upvoteCount={upvoteCounts[listing.id] ?? 0}
+          />
+        ))}
       </div>
     </section>
   );

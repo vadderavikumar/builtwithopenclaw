@@ -1,13 +1,15 @@
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
-import { ExternalLink, Github, Shield, Flag } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Globe } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { createAdminClient, hasSupabase } from "@/lib/supabase/admin";
-import { Button } from "@/components/ui/button";
+import { LogoImage } from "@/components/logo-image";
 import { ClaimForm } from "@/components/claim-form";
 import { ReportModal } from "@/components/report-modal";
 import { UpvoteButton } from "@/components/upvote-button";
+import { SoftwareApplicationJsonLd } from "@/components/json-ld";
+import { buildListingMetadata } from "@/lib/metadata";
+import type { Listing } from "@/types/database";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -17,23 +19,22 @@ export async function generateMetadata({ params }: Props) {
   const supabase = createAdminClient();
   const { data } = await supabase
     .from("listings")
-    .select("name, tagline")
+    .select("name, tagline, description, slug, category, product_type, logo_url, published_at")
     .eq("slug", slug)
     .eq("status", "published")
     .single();
   if (!data) return { title: "Listing" };
-  return {
-    title: data.name,
-    description: data.tagline,
-  };
+  return buildListingMetadata(data as Listing);
 }
 
 export default async function ListingDetailPage({ params }: Props) {
   const { slug } = await params;
   if (!hasSupabase()) {
     return (
-      <div className="container px-4 py-8">
-        <p className="text-muted-foreground">Configure Supabase to view listings.</p>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center text-muted-foreground">
+          Configure Supabase to view listings.
+        </div>
       </div>
     );
   }
@@ -53,92 +54,124 @@ export default async function ListingDetailPage({ params }: Props) {
     .select("*", { count: "exact", head: true })
     .eq("listing_id", listing.id);
 
+  const tags = [listing.pricing_type, listing.hosting_type, ...(listing.tags || [])].filter(Boolean);
+
+  const { data: relatedListings } = await supabase
+    .from("listings")
+    .select("*")
+    .eq("category", listing.category)
+    .eq("status", "published")
+    .neq("id", listing.id)
+    .limit(3);
+
+  const related = relatedListings ?? [];
+
   return (
-    <div className="container px-4 py-8">
-      <div className="max-w-3xl mx-auto">
-        <div className="flex flex-col md:flex-row gap-8">
-          <div className="shrink-0">
-            {listing.logo_url ? (
-              <Image
-                src={listing.logo_url}
-                alt={listing.name}
-                width={96}
-                height={96}
-                className="rounded-xl object-cover"
-              />
-            ) : (
-              <div className="w-24 h-24 rounded-xl bg-muted flex items-center justify-center text-3xl font-bold text-muted-foreground">
-                {listing.name.charAt(0)}
-              </div>
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-3xl font-bold">{listing.name}</h1>
-              {listing.verified && (
-                <span className="rounded bg-green-500/20 px-2 py-0.5 text-sm font-medium text-green-700 dark:text-green-400 flex items-center gap-1">
-                  <Shield className="h-4 w-4" />
-                  Verified
+    <div className="min-h-screen bg-background">
+      <SoftwareApplicationJsonLd listing={listing as Listing} />
+      <div className="mx-auto max-w-3xl px-6 py-12">
+        <Link
+          href="/directory"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to directory
+        </Link>
+
+        {/* Product header */}
+        <div className="flex items-start gap-6 mb-8">
+          <LogoImage
+            logoUrl={listing.logo_url}
+            websiteUrl={listing.url}
+            name={listing.name}
+            productType={listing.product_type}
+            size="lg"
+          />
+          <div className="flex-1">
+            <h1 className="font-display text-3xl font-bold text-foreground">{listing.name}</h1>
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
+              <span className="text-muted-foreground">{listing.category}</span>
+              {listing.product_type && (
+                <span className="rounded-full border border-border px-3 py-0.5 text-sm font-medium text-muted-foreground">
+                  {listing.product_type}
                 </span>
               )}
             </div>
-            <p className="text-lg text-muted-foreground mt-1">{listing.tagline}</p>
-            <div className="flex flex-wrap gap-2 mt-3">
-              <span className="rounded bg-muted px-2 py-0.5 text-sm">{listing.category}</span>
-              <span className="rounded bg-muted px-2 py-0.5 text-sm">{listing.pricing_type}</span>
-              <span className="rounded bg-muted px-2 py-0.5 text-sm">{listing.hosting_type}</span>
-            </div>
-            <div className="flex items-center gap-4 mt-4">
-              <a href={listing.url} target="_blank" rel="noopener noreferrer">
-                <Button className="gap-2">
-                  <ExternalLink className="h-4 w-4" />
-                  Website
-                </Button>
-              </a>
-              {listing.github_url && (
-                <a href={listing.github_url} target="_blank" rel="noopener noreferrer">
-                  <Button variant="outline" className="gap-2">
-                    <Github className="h-4 w-4" />
-                    GitHub
-                  </Button>
-                </a>
-              )}
-              <UpvoteButton listingId={listing.id} initialCount={count ?? 0} />
-            </div>
           </div>
+          <a
+            href={listing.url}
+            className="flex items-center gap-2 rounded-lg bg-btn-coral px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-colors shrink-0"
+          >
+            <Globe className="h-4 w-4" />
+            Visit
+            <ArrowUpRight className="h-4 w-4" />
+          </a>
         </div>
 
-        {listing.screenshots && listing.screenshots.length > 0 && (
-          <div className="mt-8">
-            <h2 className="text-lg font-semibold mb-4">Screenshots</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {listing.screenshots.map((url: string, i: number) => (
-                <Image
-                  key={i}
-                  src={url}
-                  alt={`Screenshot ${i + 1}`}
-                  width={400}
-                  height={250}
-                  className="rounded-lg border object-cover w-full aspect-video"
-                />
+        {/* Tags & pricing - exact from ProductDetail.tsx */}
+        <div className="flex flex-wrap items-center gap-2 mb-8">
+          {listing.pricing_type && (
+            <span className="rounded-full bg-primary/10 text-primary px-4 py-1.5 text-sm font-semibold">
+              {listing.pricing_type}
+            </span>
+          )}
+          {tags.map((tag) => (
+            <span
+              key={tag}
+              className="rounded-full border border-border px-4 py-1.5 text-sm text-muted-foreground"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+
+        {/* Description - exact from ProductDetail.tsx */}
+        <div className="rounded-xl border border-border bg-card p-8 mb-10">
+          <h2 className="font-display text-lg font-semibold text-foreground mb-3">About</h2>
+          <div className="prose prose-sm max-w-none text-muted-foreground leading-relaxed">
+            <ReactMarkdown>{listing.description}</ReactMarkdown>
+          </div>
+          {listing.openclaw_proof && (
+            <div className="mt-4">
+              <ReactMarkdown>{listing.openclaw_proof}</ReactMarkdown>
+            </div>
+          )}
+        </div>
+
+        {/* Related products - exact from ProductDetail.tsx */}
+        {related.length > 0 && (
+          <div>
+            <h2 className="font-display text-lg font-semibold text-foreground mb-4">
+              More in {listing.category}
+            </h2>
+            <div className="space-y-2">
+              {related.map((r) => (
+                <Link
+                  key={r.id}
+                  href={`/directory/${r.slug}`}
+                  className="flex items-center gap-4 rounded-lg border border-border bg-card p-4 hover:border-primary/30 hover:bg-muted/50 transition-all group"
+                >
+                  <LogoImage
+                    logoUrl={r.logo_url}
+                    websiteUrl={r.url}
+                    name={r.name}
+                    productType={r.product_type}
+                    size="sm"
+                    className="h-10 w-10 rounded-lg"
+                  />
+                  <div className="flex-1">
+                    <h3 className="font-display font-semibold text-foreground">{r.name}</h3>
+                    <p className="text-sm text-muted-foreground truncate">{r.tagline || r.description}</p>
+                  </div>
+                  <ArrowUpRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Link>
               ))}
             </div>
           </div>
         )}
 
-        <div className="mt-8 prose prose-zinc dark:prose-invert max-w-none">
-          <h2 className="text-lg font-semibold mb-4">Description</h2>
-          <ReactMarkdown>{listing.description}</ReactMarkdown>
-        </div>
-
-        {listing.openclaw_proof && (
-          <div className="mt-8 p-4 rounded-lg border bg-muted/30">
-            <h2 className="text-lg font-semibold mb-2">Built with OpenClaw</h2>
-            <ReactMarkdown>{listing.openclaw_proof}</ReactMarkdown>
-          </div>
-        )}
-
         <div className="mt-8 flex flex-wrap gap-4">
+          <UpvoteButton listingId={listing.id} initialCount={count ?? 0} />
           <ClaimForm listingId={listing.id} />
           <ReportModal listingId={listing.id} listingName={listing.name} />
         </div>

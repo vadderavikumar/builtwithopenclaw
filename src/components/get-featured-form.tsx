@@ -1,14 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-type Props = { className?: string };
+type Props = { className?: string; initialAvailable?: number };
 
-export function GetFeaturedForm({ className }: Props) {
+export function GetFeaturedForm({ className, initialAvailable }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [available, setAvailable] = useState<number | null>(initialAvailable ?? null);
+
+  useEffect(() => {
+    if (initialAvailable !== undefined) return;
+    fetch("/api/featured/availability")
+      .then((r) => r.json())
+      .then((d) => setAvailable(d.available))
+      .catch(() => setAvailable(0));
+  }, [initialAvailable]);
+
+  const slotsAvailable = available !== null ? available > 0 : true;
 
   async function handleCheckout(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -57,8 +68,18 @@ export function GetFeaturedForm({ className }: Props) {
         />
       </div>
       {error && <p className="text-sm text-destructive">{error}</p>}
-      <Button type="submit" size="lg" disabled={loading} className="w-full">
-        {loading ? "Redirecting to checkout..." : "Pay $49 — Get Featured"}
+      {!slotsAvailable && available !== null && (
+        <p className="text-sm text-muted-foreground rounded-lg border border-border bg-muted/50 p-4">
+          No slots available this week. All 10 featured slots are filled. Check back next week.
+        </p>
+      )}
+      <Button
+        type="submit"
+        size="lg"
+        disabled={loading || !slotsAvailable}
+        className="w-full"
+      >
+        {loading ? "Redirecting to checkout..." : !slotsAvailable ? "Sold out this week" : "Pay $49 — Get Featured"}
       </Button>
     </form>
   );

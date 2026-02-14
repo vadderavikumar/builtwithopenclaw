@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { CATEGORIES, PRICING_TYPES, HOSTING_TYPES } from "@/lib/utils";
+import { CATEGORIES, PRICING_TYPES, HOSTING_TYPES, PRODUCT_TYPES } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 export function SearchFilters() {
@@ -16,6 +16,7 @@ export function SearchFilters() {
   }
 
   const category = searchParams.get("category") ?? "";
+  const type = searchParams.get("type") ?? "";
   const pricing = searchParams.get("pricing") ?? "";
   const hosting = searchParams.get("hosting") ?? "";
   const sort = searchParams.get("sort") ?? "newest";
@@ -32,6 +33,21 @@ export function SearchFilters() {
           onChange={(e) => updateParam("q", e.target.value || null)}
           className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
         />
+      </div>
+      <div>
+        <label className="text-sm font-medium mb-2 block">Product Type</label>
+        <select
+          value={type}
+          onChange={(e) => updateParam("type", e.target.value || null)}
+          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+        >
+          <option value="">All</option>
+          {PRODUCT_TYPES.map((pt) => (
+            <option key={pt} value={pt}>
+              {pt}s
+            </option>
+          ))}
+        </select>
       </div>
       <div>
         <label className="text-sm font-medium mb-2 block">Category</label>

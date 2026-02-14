@@ -2,8 +2,16 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createAdminClient, hasSupabase } from "@/lib/supabase/admin";
 import { Button } from "@/components/ui/button";
+import { buildMetadata } from "@/lib/metadata";
 
 type Props = { params: Promise<{ token: string }> };
+
+export const metadata = buildMetadata({
+  title: "Claim Listing",
+  description: "Verify your listing claim on BuiltWithOpenClaw",
+  path: "/claim",
+  noIndex: true,
+});
 
 export default async function ClaimVerifyPage({ params }: Props) {
   const { token } = await params;

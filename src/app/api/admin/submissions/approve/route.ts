@@ -40,6 +40,10 @@ export async function POST(req: Request) {
       slug = `${baseSlug}-${counter++}`;
     }
 
+    const productType = ["Application", "Plugin", "Skill", "Extension"].includes(sub.product_type)
+      ? sub.product_type
+      : "Application";
+
     const { error: insertErr } = await supabase.from("listings").insert({
       slug,
       name: sub.name,
@@ -47,6 +51,7 @@ export async function POST(req: Request) {
       tagline: sub.tagline,
       description: sub.description,
       category: sub.category,
+      product_type: productType,
       tags: sub.tags ?? [],
       pricing_type: sub.pricing_type,
       hosting_type: sub.hosting_type,

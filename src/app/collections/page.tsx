@@ -1,5 +1,14 @@
 import Link from "next/link";
 import { createAdminClient, hasSupabase } from "@/lib/supabase/admin";
+import { buildMetadata } from "@/lib/metadata";
+
+export const metadata = buildMetadata({
+  title: "Collections",
+  description:
+    "Curated collections of OpenClaw products. Browse themed lists of SaaS, plugins, skills, and extensions.",
+  path: "/collections",
+  keywords: ["OpenClaw collections", "OpenClaw favorites", "curated OpenClaw"],
+});
 
 export default async function CollectionsPage() {
   if (!hasSupabase()) {

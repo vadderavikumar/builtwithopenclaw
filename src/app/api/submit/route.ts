@@ -14,6 +14,7 @@ export async function POST(req: Request) {
       tagline,
       description,
       category,
+      product_type,
       tags,
       pricing_type,
       hosting_type,
@@ -28,6 +29,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    const validProductTypes = ["Application", "Plugin", "Skill", "Extension"];
+    const pt = validProductTypes.includes(product_type) ? product_type : "Application";
+
     const supabase = createAdminClient();
     const { data, error } = await supabase.from("submissions").insert({
       name,
@@ -35,6 +39,7 @@ export async function POST(req: Request) {
       tagline,
       description,
       category,
+      product_type: pt,
       tags: Array.isArray(tags) ? tags : [],
       pricing_type,
       hosting_type,

@@ -1,14 +1,40 @@
 import Link from "next/link";
 import { Star, Check } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { GetFeaturedForm } from "@/components/get-featured-form";
+import { buildMetadata } from "@/lib/metadata";
+import { createAdminClient, hasSupabase } from "@/lib/supabase/admin";
+import { FEATURED_SLOT_COUNT } from "@/lib/utils";
 
-export const metadata = {
+function getWeekStartStr(): string {
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const weekStart = new Date(today);
+  weekStart.setDate(today.getDate() + mondayOffset);
+  return weekStart.toISOString().split("T")[0];
+}
+
+export const metadata = buildMetadata({
   title: "Get Featured",
-  description: "Get your listing featured on BuiltWithOpenClaw for $49/week",
-};
+  description:
+    "Get your OpenClaw product featured on BuiltWithOpenClaw homepage. $49/week for featured placement. 10 slots per week, first-come-first-serve.",
+  path: "/get-featured",
+  keywords: ["featured OpenClaw", "promote OpenClaw product", "OpenClaw directory featured"],
+});
 
-export default function GetFeaturedPage() {
+export default async function GetFeaturedPage() {
+  let available = 0;
+  if (hasSupabase()) {
+    const supabase = createAdminClient();
+    const weekStartStr = getWeekStartStr();
+    const { count } = await supabase
+      .from("featured_slots")
+      .select("*", { count: "exact", head: true })
+      .eq("week_start_date", weekStartStr)
+      .not("listing_id", "is", null);
+    available = Math.max(0, FEATURED_SLOT_COUNT - (count ?? 0));
+  }
+
   return (
     <div className="container px-4 py-12">
       <div className="max-w-2xl mx-auto">
@@ -42,7 +68,7 @@ export default function GetFeaturedPage() {
           </ul>
         </div>
 
-        <GetFeaturedForm className="mt-8" />
+        <GetFeaturedForm className="mt-8" initialAvailable={available} />
       </div>
     </div>
   );

@@ -8,6 +8,7 @@ export type Listing = {
   tagline: string;
   description: string;
   category: string;
+  product_type: "Application" | "Plugin" | "Skill" | "Extension";
   tags: string[];
   pricing_type: string;
   hosting_type: string;
@@ -28,6 +29,7 @@ export type Submission = {
   tagline: string;
   description: string;
   category: string;
+  product_type: "Application" | "Plugin" | "Skill" | "Extension";
   tags: string[];
   pricing_type: string;
   hosting_type: string;
