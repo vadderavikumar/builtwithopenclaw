@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { DirectoryPageClient } from "@/components/directory-page-client";
 import { ItemListJsonLd } from "@/components/json-ld";
 import { createAdminClient, hasSupabase } from "@/lib/supabase/admin";
@@ -71,15 +72,17 @@ export default async function PluginsPage({
           description="Curated list of OpenClaw plugins for voice, messaging, memory, OAuth, and integrations"
         />
 
-        <DirectoryPageClient
-          allListings={listings}
-          initialCategory={category}
-          initialProductType="Plugin"
-          initialSearch={q}
-          basePath="/plugins"
-          productTypeLock
-          categories={PLUGIN_SIDEBAR_CATEGORIES}
-        />
+        <Suspense fallback={<div className="min-h-[400px] animate-pulse" />}>
+          <DirectoryPageClient
+            allListings={listings}
+            initialCategory={category}
+            initialProductType="Plugin"
+            initialSearch={q}
+            basePath="/plugins"
+            productTypeLock
+            categories={PLUGIN_SIDEBAR_CATEGORIES}
+          />
+        </Suspense>
       </div>
     </div>
   );

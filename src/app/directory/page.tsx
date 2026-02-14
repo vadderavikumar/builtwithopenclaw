@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { DirectoryPageClient } from "@/components/directory-page-client";
 import { ItemListJsonLd } from "@/components/json-ld";
 import { createAdminClient, hasSupabase } from "@/lib/supabase/admin";
@@ -49,12 +50,14 @@ export default async function DirectoryPage({
         name="OpenClaw Products Directory"
         description="Curated list of products built with OpenClaw"
       />
-      <DirectoryPageClient
-        allListings={listings}
-        initialCategory={category}
-        initialProductType={productType}
-        initialSearch={q}
-      />
+      <Suspense fallback={<div className="min-h-screen bg-background animate-pulse" />}>
+        <DirectoryPageClient
+          allListings={listings}
+          initialCategory={category}
+          initialProductType={productType}
+          initialSearch={q}
+        />
+      </Suspense>
     </>
   );
 }

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { HomePageClient } from "@/components/home-page-client";
 import { createAdminClient, hasSupabase } from "@/lib/supabase/admin";
 import { FEATURED_SLOT_COUNT } from "@/lib/utils";
@@ -66,9 +67,11 @@ export default async function HomePage() {
     .order("published_at", { ascending: false });
 
   return (
-    <HomePageClient
-      featured={orderedFeatured}
-      allListings={allListings ?? []}
-    />
+    <Suspense fallback={<div className="min-h-screen bg-background animate-pulse" />}>
+      <HomePageClient
+        featured={orderedFeatured}
+        allListings={allListings ?? []}
+      />
+    </Suspense>
   );
 }
