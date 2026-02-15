@@ -1,5 +1,6 @@
 import { MetadataRoute } from "next";
 import { createAdminClient, hasSupabase } from "@/lib/supabase/admin";
+import { getBlogSlugs } from "@/lib/blog";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = process.env.NEXT_PUBLIC_APP_URL ?? "https://builtwithopenclaw.com";
@@ -17,9 +18,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/plugins`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
     { url: `${base}/skills`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
     { url: `${base}/applications`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
+    { url: `${base}/new`, lastModified: new Date(), changeFrequency: "daily", priority: 0.7 },
+    { url: `${base}/blog`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.6 },
+    { url: `${base}/blog/get-featured`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
   ];
 
-  if (!hasSupabase()) return staticPages;
+  const blogSlugs = getBlogSlugs();
+  const blogPages: MetadataRoute.Sitemap = blogSlugs.map((slug) => ({
+    url: `${base}/blog/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: "monthly" as const,
+    priority: 0.5,
+  }));
+
+  if (!hasSupabase()) return [...staticPages, ...blogPages];
 
   const supabase = createAdminClient();
   const { data: listings } = await supabase
@@ -42,5 +54,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...staticPages, ...listingPages, ...collectionPages];
+  return [...staticPages, ...listingPages, ...collectionPages, ...blogPages];
 }

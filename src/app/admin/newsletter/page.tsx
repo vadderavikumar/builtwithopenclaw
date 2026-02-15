@@ -1,4 +1,5 @@
 import { createAdminClient, hasSupabase } from "@/lib/supabase/admin";
+import { SendTestDigest } from "@/components/admin/send-test-digest";
 
 export default async function AdminNewsletterPage() {
   if (!hasSupabase()) {
@@ -19,8 +20,13 @@ export default async function AdminNewsletterPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Newsletter Subscribers</h1>
-      <p className="text-muted-foreground mb-4">{(subscribers ?? []).length} active subscribers</p>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold">Newsletter Subscribers</h1>
+          <p className="text-muted-foreground mt-1">{(subscribers ?? []).length} active subscribers</p>
+        </div>
+        <SendTestDigest />
+      </div>
       <div className="rounded-lg border overflow-hidden">
         <table className="w-full text-sm">
           <thead>

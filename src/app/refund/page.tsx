@@ -35,7 +35,7 @@ export default function RefundPage() {
         <section>
           <h2 className="text-xl font-semibold mb-3">2. Featured Slot Purchases</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Featured placement is $49/week. Payment secures a slot for the current week. Slots are assigned on a first-come-first-serve basis. By completing payment, you acknowledge that the purchase is final.
+            Homepage featured is $49/week; blog featured is $29/week. Payment secures a slot for the current week. Slots are assigned on a first-come-first-serve basis. By completing payment, you acknowledge that the purchase is final.
           </p>
         </section>
 

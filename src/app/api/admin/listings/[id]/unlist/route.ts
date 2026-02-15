@@ -24,7 +24,10 @@ export async function POST(
   }
 
   const newStatus = listing.status === "published" ? "unlisted" : "published";
-  await supabase.from("listings").update({ status: newStatus }).eq("id", id);
+  await supabase
+    .from("listings")
+    .update({ status: newStatus, updated_at: new Date().toISOString() })
+    .eq("id", id);
 
   return NextResponse.redirect(new URL("/admin/listings", process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"));
 }

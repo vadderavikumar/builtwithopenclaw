@@ -7,8 +7,14 @@ import { LogoImage } from "@/components/logo-image";
 import { ClaimForm } from "@/components/claim-form";
 import { ReportModal } from "@/components/report-modal";
 import { UpvoteButton } from "@/components/upvote-button";
+import { ShareButtons } from "@/components/share-buttons";
+import { CopyLinkButton } from "@/components/copy-link-button";
+import { OpenClawBadge } from "@/components/openclaw-badge";
+import { ListingReviews } from "@/components/listing-reviews";
+import { ReviewForm } from "@/components/review-form";
+import { HelpfulFeedback } from "@/components/helpful-feedback";
 import { SoftwareApplicationJsonLd } from "@/components/json-ld";
-import { buildListingMetadata } from "@/lib/metadata";
+import { buildListingMetadata, absoluteUrl } from "@/lib/metadata";
 import type { Listing } from "@/types/database";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -56,15 +62,22 @@ export default async function ListingDetailPage({ params }: Props) {
 
   const tags = [listing.pricing_type, listing.hosting_type, ...(listing.tags || [])].filter(Boolean);
 
-  const { data: relatedListings } = await supabase
+  const { data: categoryListings } = await supabase
     .from("listings")
     .select("*")
     .eq("category", listing.category)
     .eq("status", "published")
     .neq("id", listing.id)
-    .limit(3);
+    .limit(12);
 
-  const related = relatedListings ?? [];
+  const listingTags = new Set(listing.tags ?? []);
+  const related = (categoryListings ?? [])
+    .sort((a, b) => {
+      const aOverlap = (a.tags ?? []).filter((t: string) => listingTags.has(t)).length;
+      const bOverlap = (b.tags ?? []).filter((t: string) => listingTags.has(t)).length;
+      return bOverlap - aOverlap;
+    })
+    .slice(0, 6);
 
   return (
     <div className="min-h-screen bg-background">
@@ -108,8 +121,21 @@ export default async function ListingDetailPage({ params }: Props) {
           </a>
         </div>
 
-        {/* Tags & pricing - exact from ProductDetail.tsx */}
+        {/* Last updated */}
+        {(listing.updated_at || listing.published_at) && (
+          <p className="text-sm text-muted-foreground mb-4">
+            Last updated:{" "}
+            {new Date(listing.updated_at ?? listing.published_at ?? "").toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </p>
+        )}
+
+        {/* Tags & pricing */}
         <div className="flex flex-wrap items-center gap-2 mb-8">
+          <OpenClawBadge />
           {listing.pricing_type && (
             <span className="rounded-full bg-primary/10 text-primary px-4 py-1.5 text-sm font-semibold">
               {listing.pricing_type}
@@ -138,11 +164,27 @@ export default async function ListingDetailPage({ params }: Props) {
           )}
         </div>
 
-        {/* Related products - exact from ProductDetail.tsx */}
+        {/* Reviews */}
+        <div className="mb-10 space-y-6">
+          <ListingReviews listingId={listing.id} />
+          <ReviewForm listingId={listing.id} />
+        </div>
+
+        {/* Alternatives link */}
+        <div className="mb-6">
+          <Link
+            href={`/directory/${listing.slug}/alternatives`}
+            className="text-sm font-medium text-primary hover:underline"
+          >
+            See alternatives to {listing.name} →
+          </Link>
+        </div>
+
+        {/* Similar products */}
         {related.length > 0 && (
           <div>
             <h2 className="font-display text-lg font-semibold text-foreground mb-4">
-              More in {listing.category}
+              Similar products
             </h2>
             <div className="space-y-2">
               {related.map((r) => (
@@ -170,8 +212,15 @@ export default async function ListingDetailPage({ params }: Props) {
           </div>
         )}
 
-        <div className="mt-8 flex flex-wrap gap-4">
+        <div className="mt-8 flex flex-wrap gap-4 items-center">
+          <HelpfulFeedback listingId={listing.id} />
           <UpvoteButton listingId={listing.id} initialCount={count ?? 0} />
+          <ShareButtons
+            url={absoluteUrl(`/directory/${listing.slug}`)}
+            title={`${listing.name} - Built with OpenClaw`}
+            text={listing.tagline}
+          />
+          <CopyLinkButton url={absoluteUrl(`/directory/${listing.slug}`)} />
           <ClaimForm listingId={listing.id} />
           <ReportModal listingId={listing.id} listingName={listing.name} />
         </div>

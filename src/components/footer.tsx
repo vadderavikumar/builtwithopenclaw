@@ -27,6 +27,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/new" className="text-muted-foreground hover:text-foreground transition-colors">
+                  New this week
+                </Link>
+              </li>
+              <li>
                 <Link href="/applications" className="text-muted-foreground hover:text-foreground transition-colors">
                   Applications
                 </Link>
@@ -49,6 +54,11 @@ export function Footer() {
               <li>
                 <Link href="/about" className="text-muted-foreground hover:text-foreground transition-colors">
                   About
+                </Link>
+              </li>
+              <li>
+                <Link href="/blog" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Blog
                 </Link>
               </li>
               <li>

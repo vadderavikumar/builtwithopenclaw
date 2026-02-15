@@ -37,9 +37,11 @@ export async function POST(req: Request) {
       payment_id?: string;
       total_amount?: number;
       currency?: string;
-      metadata?: { listing_id?: string };
+      metadata?: { listing_id?: string; requested_week_start?: string; product_type?: string };
       customer?: { email?: string };
     };
+
+    const productType = data.metadata?.product_type ?? "homepage";
 
     const supabase = createAdminClient();
     await supabase.from("purchases").insert({
@@ -49,6 +51,8 @@ export async function POST(req: Request) {
       currency: (data.currency ?? "usd").toLowerCase(),
       status: "paid",
       listing_id: data.metadata?.listing_id || null,
+      requested_week_start: data.metadata?.requested_week_start || null,
+      product_type: productType,
     });
   }
 

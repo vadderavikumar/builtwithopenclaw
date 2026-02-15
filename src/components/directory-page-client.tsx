@@ -3,7 +3,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { SearchBar } from "@/components/search-bar";
+import { SearchAutocomplete } from "@/components/search-autocomplete";
 import { CategorySidebar } from "@/components/category-sidebar";
 import { ProductCard } from "@/components/product-card";
 import { SHOWCASE_CATEGORIES, PRODUCT_TYPE_EMOJI } from "@/lib/showcase-data";
@@ -132,7 +132,11 @@ export function DirectoryPageClient({
               </div>
             )}
 
-            <SearchBar value={initialSearch} onChange={handleSearchChange} />
+            <SearchAutocomplete
+              basePath={basePath}
+              value={initialSearch}
+              onChange={handleSearchChange}
+            />
 
             <div className="flex gap-2 overflow-x-auto pb-1 lg:hidden">
               {(categories ?? SHOWCASE_CATEGORIES).map((cat) => (

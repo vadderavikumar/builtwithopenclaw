@@ -24,15 +24,29 @@ export default async function AdminPaymentsPage() {
           <thead>
             <tr className="border-b bg-muted/50">
               <th className="text-left p-4">Email</th>
+              <th className="text-left p-4">Type</th>
+              <th className="text-left p-4">Requested week</th>
               <th className="text-left p-4">Amount</th>
               <th className="text-left p-4">Status</th>
-              <th className="text-left p-4">Date</th>
+              <th className="text-left p-4">Paid at</th>
             </tr>
           </thead>
           <tbody>
             {(purchases ?? []).map((p) => (
               <tr key={p.id} className="border-b">
                 <td className="p-4">{p.email}</td>
+                <td className="p-4">
+                  <span className={p.product_type === "blog" ? "text-primary font-medium" : ""}>
+                    {p.product_type === "blog" ? "Blog ($29)" : "Homepage ($49)"}
+                  </span>
+                </td>
+                <td className="p-4">
+                  {p.requested_week_start ? (
+                    <span className="font-medium">{p.requested_week_start}</span>
+                  ) : (
+                    <span className="text-muted-foreground">—</span>
+                  )}
+                </td>
                 <td className="p-4">${(p.amount / 100).toFixed(2)}</td>
                 <td className="p-4">{p.status}</td>
                 <td className="p-4">{p.created_at.slice(0, 10)}</td>

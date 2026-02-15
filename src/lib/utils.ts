@@ -102,6 +102,7 @@ export const PRICING_TYPES = ["Free", "Freemium", "Paid", "OSS"] as const;
 export const HOSTING_TYPES = ["SaaS", "Self-hosted", "Both"] as const;
 
 export const FEATURED_SLOT_COUNT = 10;
+export const BLOG_FEATURED_SLOT_COUNT = 5;
 
 /** Extract hostname from URL for logo/favicon fetching */
 export function getDomainFromUrl(url: string): string | null {

@@ -1,6 +1,6 @@
 # BuiltWithOpenClaw
 
-A curated directory of products built with OpenClaw. Free listings with manual review, featured slots at $49/week.
+A curated directory of products built with OpenClaw. Free listings with manual review, featured slots at $29/week.
 
 ## Tech Stack
 
@@ -29,11 +29,13 @@ Copy `.env.example` to `.env.local` and fill in:
 - `SUPABASE_SERVICE_ROLE_KEY` - Secret key (`sb_secret_...`) or legacy service_role key (server-side only)
 - `DODO_PAYMENTS_API_KEY` - Dodo Payments API key
 - `DODO_PAYMENTS_WEBHOOK_KEY` - Dodo webhook signing secret
-- `DODO_PRODUCT_ID` - Dodo product ID for featured slot ($49)
+- `DODO_PRODUCT_ID` - Dodo product ID for homepage featured ($49)
+- `DODO_BLOG_FEATURED_PRODUCT_ID` - Dodo product ID for blog featured ($29)
 - `DODO_PAYMENTS_ENVIRONMENT` - `test_mode` or `live_mode`
 - `ADMIN_EMAILS` - Comma-separated admin emails allowed to login
-- `RESEND_API_KEY` - (Optional) For claim verification emails
+- `RESEND_API_KEY` - (Optional) For claim verification emails and weekly digest
 - `NEXT_PUBLIC_APP_URL` - App URL (e.g. https://builtwithopenclaw.com)
+- `CRON_SECRET` - (Optional) For Vercel Cron to call weekly digest; set in Vercel env vars
 
 ### 3. Database setup
 
@@ -46,7 +48,7 @@ In Supabase Dashboard: Authentication → Users → Add user. Add the email to `
 ### 5. Dodo Payments setup
 
 1. Create a Dodo Payments account at [dodopayments.com](https://dodopayments.com)
-2. Create a product "Featured Slot" with price $49
+2. Create products: "Homepage Featured" ($49) and "Blog Featured" ($29)
 3. Copy the Product ID to `DODO_PRODUCT_ID`
 4. Copy API key to `DODO_PAYMENTS_API_KEY`
 5. Create webhook endpoint: `https://your-domain.com/api/webhooks/dodo`

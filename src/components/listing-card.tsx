@@ -6,6 +6,7 @@ import type { Listing } from "@/types/database";
 import { cn } from "@/lib/utils";
 import { UpvoteButton } from "./upvote-button";
 import { LogoImage } from "./logo-image";
+import { OpenClawBadge } from "./openclaw-badge";
 
 type ListingCardProps = {
   listing: Listing;
@@ -90,7 +91,8 @@ export function ListingCard({ listing, featured, upvoteCount = 0, compact, simpl
               </span>
             ))}
           </div>
-          <div className="mt-3 flex items-center gap-3">
+          <div className="mt-3 flex items-center gap-3 flex-wrap">
+            <OpenClawBadge compact className="shrink-0" />
             <a
               href={listing.url}
               target="_blank"

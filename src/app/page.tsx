@@ -66,11 +66,58 @@ export default async function HomePage() {
     .eq("status", "published")
     .order("published_at", { ascending: false });
 
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const sevenDaysAgoStr = sevenDaysAgo.toISOString();
+
+  const { data: newThisWeek } = await supabase
+    .from("listings")
+    .select("*")
+    .eq("status", "published")
+    .gte("published_at", sevenDaysAgoStr)
+    .order("published_at", { ascending: false })
+    .limit(12);
+
+  const newListings = (newThisWeek ?? []).filter(
+    (l) => !featuredIds.includes(l.id)
+  ) as Listing[];
+
+  const { data: recentUpvotes } = await supabase
+    .from("listing_upvotes")
+    .select("listing_id")
+    .gte("created_at", sevenDaysAgoStr);
+
+  const upvoteCounts: Record<string, number> = {};
+  for (const u of recentUpvotes ?? []) {
+    if (u.listing_id) {
+      upvoteCounts[u.listing_id] = (upvoteCounts[u.listing_id] ?? 0) + 1;
+    }
+  }
+  const trendingIds = Object.entries(upvoteCounts)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 6)
+    .map(([id]) => id);
+
+  let trendingListings: Listing[] = [];
+  if (trendingIds.length > 0) {
+    const { data } = await supabase
+      .from("listings")
+      .select("*")
+      .in("id", trendingIds)
+      .eq("status", "published");
+    trendingListings = (data ?? []) as Listing[];
+  }
+  const orderedTrending = trendingIds
+    .map((id) => trendingListings.find((l) => l.id === id))
+    .filter((l): l is NonNullable<typeof l> => l != null);
+
   return (
     <Suspense fallback={<div className="min-h-screen bg-background animate-pulse" />}>
       <HomePageClient
         featured={orderedFeatured}
         allListings={allListings ?? []}
+        newThisWeek={newListings}
+        trending={orderedTrending}
       />
     </Suspense>
   );

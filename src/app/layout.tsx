@@ -44,7 +44,6 @@ export const metadata: Metadata = {
   metadataBase: new URL(getBaseUrl()),
   icons: {
     icon: "/openclaw-logo.png",
-    shortcut: "/openclaw-logo.png",
     apple: "/openclaw-logo.png",
   },
 };

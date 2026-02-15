@@ -48,7 +48,7 @@ export default function TermsPage() {
         <section>
           <h2 className="text-xl font-semibold mb-3">4. Featured Listings</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Featured placement is a paid service ($49/week). Featured slots are subject to availability—we only allow purchases when slots are available for the current week. Payment does not guarantee approval of a listing. All sales are final; no refunds. See our Refund Policy.
+            Featured placement is a paid service. Homepage featured: $49/week. Blog featured: $29/week. Featured slots are subject to availability—we only allow purchases when slots are available for the current week. Payment does not guarantee approval of a listing. All sales are final; no refunds. See our Refund Policy.
           </p>
         </section>
 

@@ -3,6 +3,7 @@ export type Listing = {
   slug: string;
   created_at: string;
   published_at: string | null;
+  updated_at: string | null;
   name: string;
   url: string;
   tagline: string;
@@ -54,6 +55,7 @@ export type Purchase = {
   id: string;
   stripe_session_id: string | null;
   stripe_payment_intent_id: string | null;
+  dodo_payment_id: string | null;
   email: string;
   amount: number;
   currency: string;
@@ -61,6 +63,19 @@ export type Purchase = {
   week_start_date: string | null;
   slot_number: number | null;
   listing_id: string | null;
+  requested_week_start: string | null;
+  product_type: string | null;
+  created_at: string;
+};
+
+export type ListingReview = {
+  id: string;
+  listing_id: string;
+  author_name: string | null;
+  author_email: string | null;
+  rating: number;
+  comment: string | null;
+  status: "pending" | "approved";
   created_at: string;
 };
 
