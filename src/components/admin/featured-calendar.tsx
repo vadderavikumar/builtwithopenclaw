@@ -36,7 +36,7 @@ export function FeaturedCalendar({
     assignedForWeek.map((s) => [s.slot_number, s.listing_id as string])
   );
 
-  async function handleAssign(slotNumber: number, listingId: string) {
+  async function handleAssign(slotNumber: number, listingId: string | null) {
     setLoading(true);
     try {
       const res = await fetch("/api/admin/featured/assign", {
@@ -95,11 +95,16 @@ export function FeaturedCalendar({
               value={assignedBySlot.get(slotNum) ?? ""}
               onChange={(e) => {
                 const id = e.target.value;
+                if (id === "__clear__") {
+                  handleAssign(slotNum, null);
+                  return;
+                }
                 if (id && id !== assignedBySlot.get(slotNum)) handleAssign(slotNum, id);
               }}
               disabled={loading}
             >
               <option value="">Assign...</option>
+              {assignedBySlot.get(slotNum) && <option value="__clear__">Clear assignment</option>}
               {listings.map((l) => (
                 <option key={l.id} value={l.id}>{l.name}</option>
               ))}

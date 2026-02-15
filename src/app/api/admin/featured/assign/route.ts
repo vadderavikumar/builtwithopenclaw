@@ -14,13 +14,15 @@ export async function POST(req: Request) {
 
   try {
     const { weekStart, slotNumber, listingId } = await req.json();
-    if (!weekStart || !slotNumber || !listingId) {
-      return NextResponse.json({ error: "weekStart, slotNumber, listingId required" }, { status: 400 });
+    if (!weekStart || !slotNumber) {
+      return NextResponse.json({ error: "weekStart and slotNumber are required" }, { status: 400 });
     }
+    const normalizedListingId =
+      typeof listingId === "string" && listingId.trim() ? listingId.trim() : null;
 
     const supabase = createAdminClient();
     const { error } = await supabase.from("featured_slots").upsert(
-      { week_start_date: weekStart, slot_number: slotNumber, listing_id: listingId },
+      { week_start_date: weekStart, slot_number: slotNumber, listing_id: normalizedListingId },
       { onConflict: "week_start_date,slot_number" }
     );
 

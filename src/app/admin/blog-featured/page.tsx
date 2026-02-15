@@ -12,7 +12,7 @@ export default async function AdminBlogFeaturedPage() {
   }
 
   const supabase = createAdminClient();
-  const [{ data: listings }, { data: purchases }] = await Promise.all([
+  const [{ data: listings }, { data: purchases }, { data: slots }] = await Promise.all([
     supabase.from("listings").select("id, name, slug").eq("status", "published").order("name"),
     supabase
       .from("purchases")
@@ -20,6 +20,10 @@ export default async function AdminBlogFeaturedPage() {
       .eq("status", "paid")
       .eq("product_type", "blog")
       .order("created_at", { ascending: false }),
+    supabase
+      .from("blog_featured_slots")
+      .select("week_start_date, slot_number, listing_id")
+      .not("listing_id", "is", null),
   ]);
 
   return (
@@ -29,6 +33,7 @@ export default async function AdminBlogFeaturedPage() {
       <BlogFeaturedCalendar
         listings={listings ?? []}
         purchases={purchases ?? []}
+        slotAssignments={slots ?? []}
       />
     </div>
   );
