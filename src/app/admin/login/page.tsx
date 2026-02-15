@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -12,17 +12,22 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [helperError, setHelperError] = useState("");
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const errorParam = searchParams.get("error");
-  const helperError =
-    errorParam === "unauthorized"
-      ? "Signed in, but this email is not allowed for admin. Add it to ADMIN_EMAILS."
-      : errorParam === "session"
-        ? "Login session could not be verified. Please sign in again."
-        : errorParam === "config"
-          ? "Supabase auth is not configured in production environment variables."
-          : "";
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const errorParam = params.get("error");
+    const message =
+      errorParam === "unauthorized"
+        ? "Signed in, but this email is not allowed for admin. Add it to ADMIN_EMAILS."
+        : errorParam === "session"
+          ? "Login session could not be verified. Please sign in again."
+          : errorParam === "config"
+            ? "Supabase auth is not configured in production environment variables."
+            : "";
+    setHelperError(message);
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
