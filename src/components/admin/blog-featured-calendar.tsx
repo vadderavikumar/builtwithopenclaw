@@ -27,6 +27,7 @@ export function BlogFeaturedCalendar({
   const router = useRouter();
   const [weekStart, setWeekStart] = useState(getWeekStart(new Date()));
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const pendingForWeek = purchases.filter((p) => p.requested_week_start === weekStart);
   const assignedForWeek = slotAssignments.filter(
@@ -38,13 +39,19 @@ export function BlogFeaturedCalendar({
 
   async function handleAssign(slotNumber: number, listingId: string | null) {
     setLoading(true);
+    setError("");
     try {
       const res = await fetch("/api/admin/blog-featured/assign", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ weekStart, slotNumber, listingId }),
       });
-      if (res.ok) router.refresh();
+      if (res.ok) {
+        router.refresh();
+      } else {
+        const data = await res.json().catch(() => null);
+        setError(data?.error ?? "Failed to update blog featured slot.");
+      }
     } finally {
       setLoading(false);
     }
@@ -81,6 +88,12 @@ export function BlogFeaturedCalendar({
         </div>
       )}
 
+      {error && (
+        <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {error}
+        </div>
+      )}
+
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {[1, 2, 3, 4, 5].map((slotNum) => (
           <div key={slotNum} className="rounded-lg border p-4">
@@ -95,6 +108,10 @@ export function BlogFeaturedCalendar({
               value={assignedBySlot.get(slotNum) ?? ""}
               onChange={(e) => {
                 const id = e.target.value;
+                if (id === "" && assignedBySlot.get(slotNum)) {
+                  handleAssign(slotNum, null);
+                  return;
+                }
                 if (id === "__clear__") {
                   handleAssign(slotNum, null);
                   return;
@@ -103,7 +120,7 @@ export function BlogFeaturedCalendar({
               }}
               disabled={loading}
             >
-              <option value="">Assign...</option>
+              <option value="">{assignedBySlot.get(slotNum) ? "Unassigned" : "Assign..."}</option>
               {assignedBySlot.get(slotNum) && <option value="__clear__">Clear assignment</option>}
               {listings.map((l) => (
                 <option key={l.id} value={l.id}>{l.name}</option>
