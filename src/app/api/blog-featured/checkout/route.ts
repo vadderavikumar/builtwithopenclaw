@@ -5,6 +5,12 @@ import { BLOG_FEATURED_SLOT_COUNT } from "@/lib/utils";
 
 const DODO_BLOG_PRODUCT_ID = process.env.DODO_BLOG_FEATURED_PRODUCT_ID;
 
+function getRequestOrigin(req: Request): string {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
+  if (appUrl) return appUrl.replace(/\/+$/, "");
+  return new URL(req.url).origin;
+}
+
 function extractSlugFromListingUrl(url: string): string | null {
   const trimmed = url.trim();
   if (!trimmed) return null;
@@ -35,7 +41,7 @@ export async function POST(req: Request) {
 
   try {
     const { email, listingUrl, weekStart: requestedWeek } = await req.json();
-    if (!email) {
+    if (!email || typeof email !== "string") {
       return NextResponse.json({ error: "Email required" }, { status: 400 });
     }
     if (!requestedWeek || typeof requestedWeek !== "string") {
@@ -73,11 +79,11 @@ export async function POST(req: Request) {
       }
     }
 
-    const origin = req.headers.get("origin") ?? "http://localhost:3000";
+    const origin = getRequestOrigin(req);
 
     const session = await dodo.checkoutSessions.create({
       product_cart: [{ product_id: DODO_BLOG_PRODUCT_ID, quantity: 1 }],
-      customer: { email },
+      customer: { email: email.trim() },
       return_url: `${origin}/blog/get-featured/success`,
       metadata: {
         listing_id: listingId ?? "",
