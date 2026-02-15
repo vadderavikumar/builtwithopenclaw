@@ -39,12 +39,30 @@ export function HomePageClient({ featured, allListings, newThisWeek = [], trendi
         </div>
 
         {/* Featured this week */}
-        {featured.length > 0 && (
+        {featured.length > 0 ? (
           <div className="mb-6">
             <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
               Featured this week
             </h2>
             <BentoHero featured={featured} />
+          </div>
+        ) : (
+          <div className="mb-6 rounded-xl border border-dashed border-primary/40 bg-primary/5 p-5">
+            <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-2">
+              Featured this week
+            </p>
+            <h2 className="font-display text-xl font-bold text-foreground">
+              Your product can be featured here
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Get homepage spotlight placement for this week and drive more visibility.
+            </p>
+            <Link
+              href="/get-featured"
+              className="mt-4 inline-flex rounded-lg border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+            >
+              Book Featured Slot ($49/wk)
+            </Link>
           </div>
         )}
 

@@ -12,7 +12,7 @@ export default async function AdminFeaturedPage() {
   }
 
   const supabase = createAdminClient();
-  const [{ data: listings }, { data: purchases }] = await Promise.all([
+  const [{ data: listings }, { data: purchases }, { data: slots }] = await Promise.all([
     supabase.from("listings").select("id, name, slug").eq("status", "published").order("name"),
     supabase
       .from("purchases")
@@ -20,6 +20,10 @@ export default async function AdminFeaturedPage() {
       .eq("status", "paid")
       .or("product_type.eq.homepage,product_type.is.null")
       .order("created_at", { ascending: false }),
+    supabase
+      .from("featured_slots")
+      .select("week_start_date, slot_number, listing_id")
+      .not("listing_id", "is", null),
   ]);
 
   return (
@@ -28,6 +32,7 @@ export default async function AdminFeaturedPage() {
       <FeaturedCalendar
         listings={listings ?? []}
         purchases={purchases ?? []}
+        slotAssignments={slots ?? []}
       />
     </div>
   );
