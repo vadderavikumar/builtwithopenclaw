@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -12,6 +13,16 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const errorParam = searchParams.get("error");
+  const helperError =
+    errorParam === "unauthorized"
+      ? "Signed in, but this email is not allowed for admin. Add it to ADMIN_EMAILS."
+      : errorParam === "session"
+        ? "Login session could not be verified. Please sign in again."
+        : errorParam === "config"
+          ? "Supabase auth is not configured in production environment variables."
+          : "";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -59,7 +70,7 @@ export default function AdminLoginPage() {
               )}
             />
           </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {(error || helperError) && <p className="text-sm text-destructive">{error || helperError}</p>}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Signing in..." : "Sign in"}
           </Button>

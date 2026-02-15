@@ -17,18 +17,26 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseAnonKey) {
+    const loginUrl = new URL("/admin/login", request.url);
+    loginUrl.searchParams.set("error", "config");
+    return NextResponse.redirect(loginUrl);
+  }
+
   let response = NextResponse.next();
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet: { name: string; value: string }[]) {
-          cookiesToSet.forEach(({ name, value }) =>
-            response.cookies.set(name, value)
+        setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
           );
         },
       },
@@ -38,7 +46,9 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user || !ADMIN_EMAILS.includes(user.email?.toLowerCase() ?? "")) {
-    return NextResponse.redirect(new URL("/admin/login", request.url));
+    const loginUrl = new URL("/admin/login", request.url);
+    loginUrl.searchParams.set("error", user ? "unauthorized" : "session");
+    return NextResponse.redirect(loginUrl);
   }
 
   return response;
