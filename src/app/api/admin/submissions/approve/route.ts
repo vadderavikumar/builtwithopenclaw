@@ -24,11 +24,38 @@ export async function POST(req: Request) {
       .from("submissions")
       .select("*")
       .eq("id", id)
-      .eq("status", "pending")
-      .single();
+      .maybeSingle();
 
     if (subErr || !sub) {
       return NextResponse.json({ error: "Submission not found" }, { status: 404 });
+    }
+
+    if (sub.status === "approved") {
+      return NextResponse.json({ ok: true, message: "Submission already approved" });
+    }
+
+    if (sub.status !== "pending" && sub.status !== "rejected") {
+      return NextResponse.json(
+        { error: `Submission cannot be approved from status "${sub.status}"` },
+        { status: 400 }
+      );
+    }
+
+    const { data: existingListings } = await supabase
+      .from("listings")
+      .select("id, slug")
+      .eq("url", sub.url)
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if ((existingListings ?? []).length > 0) {
+      await supabase.from("submissions").update({ status: "approved" }).eq("id", id);
+      return NextResponse.json({
+        ok: true,
+        message: "Submission approved (existing listing reused)",
+        listingId: existingListings?.[0]?.id,
+        listingSlug: existingListings?.[0]?.slug,
+      });
     }
 
     const baseSlug = slugify(sub.name);
@@ -69,10 +96,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: insertErr.message }, { status: 500 });
     }
 
-    await supabase
-      .from("submissions")
-      .update({ status: "approved" })
-      .eq("id", id);
+    await supabase.from("submissions").update({ status: "approved" }).eq("id", id);
 
     return NextResponse.json({ ok: true });
   } catch (err) {
