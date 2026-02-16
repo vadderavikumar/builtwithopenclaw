@@ -18,10 +18,12 @@ export default async function AdminDashboardPage() {
     { count: pendingCount },
     { count: listingsCount },
     { count: reportsCount },
+    { count: blogPublishedCount },
   ] = await Promise.all([
     supabase.from("submissions").select("*", { count: "exact", head: true }).eq("status", "pending"),
     supabase.from("listings").select("*", { count: "exact", head: true }).eq("status", "published"),
     supabase.from("listing_reports").select("*", { count: "exact", head: true }).eq("status", "pending"),
+    supabase.from("blog_posts").select("*", { count: "exact", head: true }).eq("status", "published"),
   ]);
 
   const today = new Date();
@@ -39,7 +41,7 @@ export default async function AdminDashboardPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Link href="/admin/submissions" className="rounded-lg border p-4 hover:bg-muted/50">
           <p className="text-sm text-muted-foreground">Pending submissions</p>
           <p className="text-2xl font-bold">{pendingCount ?? 0}</p>
@@ -55,6 +57,10 @@ export default async function AdminDashboardPage() {
         <Link href="/admin/reports" className="rounded-lg border p-4 hover:bg-muted/50">
           <p className="text-sm text-muted-foreground">Pending reports</p>
           <p className="text-2xl font-bold">{reportsCount ?? 0}</p>
+        </Link>
+        <Link href="/admin/blog" className="rounded-lg border p-4 hover:bg-muted/50">
+          <p className="text-sm text-muted-foreground">Published blog posts</p>
+          <p className="text-2xl font-bold">{blogPublishedCount ?? 0}</p>
         </Link>
       </div>
       <div className="mt-8">

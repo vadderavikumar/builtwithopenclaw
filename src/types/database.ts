@@ -87,3 +87,28 @@ export type Collection = {
   listing_ids: string[];
   created_at: string;
 };
+
+export type BlogPost = {
+  id: string;
+  slug: string;
+  created_at: string;
+  updated_at: string;
+  title: string;
+  excerpt: string;
+  content_html: string;
+  author_name: string | null;
+  cover_image_url: string | null;
+  status: "draft" | "published" | "archived";
+  published_at: string | null;
+  seo_title: string | null;
+  seo_description: string | null;
+  seo_keywords: string[];
+  canonical_url: string | null;
+  geo_region: string | null;
+  geo_placename: string | null;
+  schema_type: string;
+  faq_jsonld: unknown | null;
+  og_image_url: string | null;
+  noindex: boolean;
+  reading_time_minutes: number;
+};

@@ -1,39 +1,85 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import ReactMarkdown from "react-markdown";
 import { buildMetadata } from "@/lib/metadata";
 import { getBlogPost, getBlogSlugs } from "@/lib/blog";
 import { AdSlot } from "@/components/ad-slot";
 import { BlogFeaturedList } from "@/components/blog-featured-list";
 import { ShareButtons } from "@/components/share-buttons";
 import { absoluteUrl } from "@/lib/metadata";
+import { sanitizeBlogHtml } from "@/lib/blog-seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateStaticParams() {
-  const slugs = getBlogSlugs();
+  const slugs = await getBlogSlugs();
   return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const post = getBlogPost(slug);
+  const post = await getBlogPost(slug);
   if (!post) return { title: "Post" };
-  return buildMetadata({
-    title: post.title,
-    description: post.description,
+  const title = post.seoTitle ?? post.title;
+  const description = post.seoDescription ?? post.excerpt;
+  const metadata = buildMetadata({
+    title,
+    description,
     path: `/blog/${slug}`,
     type: "article",
-    publishedTime: post.date,
+    publishedTime: post.publishedAt ?? undefined,
+    modifiedTime: post.updatedAt ?? post.publishedAt ?? undefined,
+    canonical: post.canonicalUrl ?? undefined,
+    keywords: post.seoKeywords,
+    image: post.ogImageUrl ?? post.coverImageUrl ?? undefined,
+    noIndex: post.noIndex,
+    authors: post.authorName ? [post.authorName] : undefined,
   });
+
+  return {
+    ...metadata,
+    other: {
+      ...(metadata.other ?? {}),
+      ...(post.geoRegion ? { "geo.region": post.geoRegion } : {}),
+      ...(post.geoPlacename ? { "geo.placename": post.geoPlacename } : {}),
+    },
+  };
 }
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const post = getBlogPost(slug);
+  const post = await getBlogPost(slug);
   if (!post) notFound();
 
   const postUrl = absoluteUrl(`/blog/${slug}`);
+  const safeHtml = sanitizeBlogHtml(post.contentHtml);
+
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": post.schemaType || "Article",
+    headline: post.seoTitle ?? post.title,
+    description: post.seoDescription ?? post.excerpt,
+    url: post.canonicalUrl ?? postUrl,
+    datePublished: post.publishedAt ?? undefined,
+    dateModified: post.updatedAt ?? post.publishedAt ?? undefined,
+    author: {
+      "@type": "Person",
+      name: post.authorName || "BuiltWithOpenClaw Team",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "BuiltWithOpenClaw",
+      url: absoluteUrl("/"),
+    },
+    image: post.ogImageUrl ?? post.coverImageUrl ?? undefined,
+  };
+
+  const faqSchema = post.faqJsonLd
+    ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: post.faqJsonLd,
+      }
+    : null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -51,23 +97,26 @@ export default async function BlogPostPage({ params }: Props) {
               <h1 className="font-display text-4xl font-bold text-foreground tracking-tight leading-tight">
                 {post.title}
               </h1>
-              {post.date && (
+              <p className="text-sm text-muted-foreground mt-2">By {post.authorName}</p>
+              {post.publishedAt && (
                 <time className="text-muted-foreground mt-3 block">
-                  {new Date(post.date).toLocaleDateString("en-US", {
+                  {new Date(post.publishedAt).toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
                   })}
                 </time>
               )}
+              <p className="text-sm text-muted-foreground mt-1">{post.readingTimeMinutes} min read</p>
             </header>
 
-            <div className="prose prose-lg max-w-none text-muted-foreground prose-headings:text-foreground prose-headings:font-display prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-p:leading-relaxed">
-              <ReactMarkdown>{post.content}</ReactMarkdown>
-            </div>
+            <div
+              className="prose prose-lg max-w-none text-muted-foreground prose-headings:text-foreground prose-headings:font-display prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-p:leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: safeHtml }}
+            />
 
             <div className="mt-12 pt-8 border-t border-border flex flex-wrap items-center gap-4">
-              <ShareButtons url={postUrl} title={post.title} text={post.description} />
+              <ShareButtons url={postUrl} title={post.title} text={post.excerpt} />
             </div>
           </article>
 
@@ -88,6 +137,10 @@ export default async function BlogPostPage({ params }: Props) {
           </aside>
         </div>
       </div>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
+      {faqSchema && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      )}
     </div>
   );
 }

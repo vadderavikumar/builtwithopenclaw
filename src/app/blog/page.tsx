@@ -12,8 +12,8 @@ export const metadata = buildMetadata({
   keywords: ["OpenClaw blog", "OpenClaw tips", "BuiltWithOpenClaw"],
 });
 
-export default function BlogPage() {
-  const posts = getAllBlogPosts();
+export default async function BlogPage() {
+  const posts = await getAllBlogPosts();
 
   return (
     <div className="min-h-screen bg-background">
@@ -40,18 +40,18 @@ export default function BlogPage() {
                     <h2 className="font-display text-xl font-semibold text-foreground group-hover:text-primary transition-colors">
                       {post.title}
                     </h2>
-                    {post.date && (
+                    {post.publishedAt && (
                       <time className="text-sm text-muted-foreground mt-1 block">
-                        {new Date(post.date).toLocaleDateString("en-US", {
+                        {new Date(post.publishedAt).toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "long",
                           day: "numeric",
                         })}
                       </time>
                     )}
-                    {post.description && (
+                    {post.excerpt && (
                       <p className="text-muted-foreground mt-3 line-clamp-2">
-                        {post.description}
+                        {post.excerpt}
                       </p>
                     )}
                     <span className="inline-block mt-3 text-sm font-medium text-primary group-hover:underline">

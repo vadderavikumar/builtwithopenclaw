@@ -1,6 +1,6 @@
 import { MetadataRoute } from "next";
 import { createAdminClient, hasSupabase } from "@/lib/supabase/admin";
-import { getBlogSlugs } from "@/lib/blog";
+import { getAllBlogPosts } from "@/lib/blog";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = process.env.NEXT_PUBLIC_APP_URL ?? "https://builtwithopenclaw.com";
@@ -23,10 +23,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/blog/get-featured`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
   ];
 
-  const blogSlugs = getBlogSlugs();
-  const blogPages: MetadataRoute.Sitemap = blogSlugs.map((slug) => ({
-    url: `${base}/blog/${slug}`,
-    lastModified: new Date(),
+  const blogPosts = await getAllBlogPosts();
+  const blogPages: MetadataRoute.Sitemap = blogPosts.map((post) => ({
+    url: `${base}/blog/${post.slug}`,
+    lastModified: post.updatedAt ? new Date(post.updatedAt) : post.publishedAt ? new Date(post.publishedAt) : new Date(),
     changeFrequency: "monthly" as const,
     priority: 0.5,
   }));
